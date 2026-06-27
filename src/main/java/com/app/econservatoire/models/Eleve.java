@@ -53,7 +53,7 @@ public class Eleve {
     private String lieu_naissance;
 
     @ManyToOne
-    @JoinColumn(name = "pay")
+    @JoinColumn(name = "pay_id")
     private Pay pay;
 
     @Column(length = 200)
@@ -141,4 +141,8 @@ public class Eleve {
     // relationship with journalisations table
     @OneToMany(mappedBy = "eleve")
     private List<Journalisation> journalisations;
+
+    public boolean isAccountVerified(){
+        return this.enabled;
+    }
 }

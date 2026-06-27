@@ -25,9 +25,9 @@ public class Pay {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(length = 100)
+    @Column(length = 100, nullable = false)
     private String nom_pay;
 
-    @OneToMany(mappedBy = "pay")
-    private List<Eleve> eleves;
+    // @OneToMany(mappedBy = "pay")
+    // private List<Eleve> eleves;
 }
