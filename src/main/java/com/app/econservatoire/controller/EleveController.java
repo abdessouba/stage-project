@@ -4,7 +4,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.app.econservatoire.dto.eleve.EleveRequest;
 import com.app.econservatoire.service.EleveService;
-import com.app.econservatoire.service.VerificationTokenService;
+import com.app.econservatoire.service.TokenVerifyService;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -25,7 +25,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 public class EleveController {
 
     public final EleveService eleveService;
-    public final VerificationTokenService verificationTokenService;
+    public final TokenVerifyService verificationTokenService;
 
     @PostMapping("/signup")
     public ResponseEntity<String> SignUp(@Valid @RequestBody EleveRequest eleve){

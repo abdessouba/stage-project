@@ -20,7 +20,7 @@ public class EleveService {
     private final EleveRepository eleveRepository;
     private final PayRepository payRepository;
     private final PasswordEncoder passwordEncoder;
-    private final VerificationTokenService emailVerificationService;
+    private final TokenVerifyService tokenVerifyService;
 
 
     public void registerEleve(EleveRequest requestEleve) {
@@ -29,17 +29,16 @@ public class EleveService {
             throw new RuntimeException("User With This Email already exists");
         }
 
-        Pay pay = payRepository.findById(requestEleve.getPayId()).orElseThrow(()-> new RuntimeException("Pay not found."));
+        Pay pay = payRepository.findById(requestEleve.getPayId())
+        .orElseThrow(()-> new RuntimeException("Pay not found."));
             
-        requestEleve.setPassword(passwordEncoder.encode(requestEleve.getPassword()));
-
         Eleve eleve = eleveMapper.toEntity(requestEleve);
-
+        
+        eleve.setPassword(passwordEncoder.encode(requestEleve.getPassword()));
         eleve.setPay(pay);
 
         Eleve savedEleve = eleveRepository.save(eleve);
 
-        // handle email verification after eleve created
-        emailVerificationService.handleVerificationEmail(savedEleve);
+        tokenVerifyService.verifyEmail(savedEleve);
     }
 }
