@@ -3,20 +3,20 @@ package com.app.econservatoire.controller;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.app.econservatoire.dto.eleve.EleveRequest;
-import com.app.econservatoire.dto.eleve.EleveResponse;
-import com.app.econservatoire.models.Eleve;
 import com.app.econservatoire.service.EleveService;
+import com.app.econservatoire.service.TokenVerifyService;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
 
 
 @RequiredArgsConstructor
@@ -25,11 +25,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 public class EleveController {
 
     public final EleveService eleveService;
+    public final TokenVerifyService verificationTokenService;
 
     @PostMapping("/signup")
-    public ResponseEntity<EleveResponse> SignUp(@Valid @RequestBody EleveRequest eleve){
-                
-        return ResponseEntity.status(HttpStatus.CREATED).body(eleveService.registerEleve(eleve));
+    public ResponseEntity<String> SignUp(@Valid @RequestBody EleveRequest eleve){
+        eleveService.registerEleve(eleve);     
+        return ResponseEntity.status(HttpStatus.CREATED).body("Verification email sent successfully.");
     }
 
     @PostMapping("/signin")
@@ -38,10 +39,11 @@ public class EleveController {
         return entity;
     }
 
-    @PostMapping("/verify-email")
-    public String VerifyEmail(@RequestBody String entity) {
-        
-        return entity;
+    @GetMapping("/verify-email")
+    public ResponseEntity<String> getMethodName(@RequestParam String token) {
+        verificationTokenService.verifyToken(token);
+        return ResponseEntity.status(HttpStatus.ACCEPTED).body("Email Verified Successfully.");
     }
+    
     
 }

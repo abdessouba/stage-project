@@ -1,7 +1,7 @@
 package com.app.econservatoire.models;
 
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -31,7 +31,7 @@ public class VerificationToken {
     private Long id;
     
     @Column(name = "expiry_date")
-    private LocalDate expirydate;
+    private LocalDateTime expirydate;
 
     @Column(length = 255)
     private String token;
