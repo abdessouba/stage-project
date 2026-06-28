@@ -3,17 +3,20 @@ package com.app.econservatoire.controller;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.app.econservatoire.dto.eleve.EleveRequest;
+import com.app.econservatoire.dto.eleve.EleveSignInReponse;
+import com.app.econservatoire.dto.eleve.EleveSignInRequest;
 import com.app.econservatoire.dto.eleve.ForgetPasswordRequest;
 import com.app.econservatoire.dto.eleve.ResetPasswordRequest;
-import com.app.econservatoire.models.ResetPassword;
 import com.app.econservatoire.service.EleveService;
 import com.app.econservatoire.service.ResetPasswordService;
 import com.app.econservatoire.service.TokenVerifyService;
 
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -39,10 +42,11 @@ public class EleveController {
     }
 
     @PostMapping("/signin")
-    public String SignIn(@RequestBody String entity) {
-        
-        return entity;
+    public ResponseEntity<EleveSignInReponse> login(@RequestBody EleveSignInRequest request,
+                                HttpServletResponse response) {
+        return ResponseEntity.ok(eleveService.signInUser(request, response));
     }
+
 
     @GetMapping("/verify-email")
     public ResponseEntity<String> getMethodName(@RequestParam String token) {
