@@ -3,7 +3,11 @@ package com.app.econservatoire.controller;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.app.econservatoire.dto.eleve.EleveRequest;
+import com.app.econservatoire.dto.eleve.ForgetPasswordRequest;
+import com.app.econservatoire.dto.eleve.ResetPasswordRequest;
+import com.app.econservatoire.models.ResetPassword;
 import com.app.econservatoire.service.EleveService;
+import com.app.econservatoire.service.ResetPasswordService;
 import com.app.econservatoire.service.TokenVerifyService;
 
 import jakarta.validation.Valid;
@@ -26,6 +30,7 @@ public class EleveController {
 
     public final EleveService eleveService;
     public final TokenVerifyService verificationTokenService;
+    public final ResetPasswordService resetPasswordService;
 
     @PostMapping("/signup")
     public ResponseEntity<String> SignUp(@Valid @RequestBody EleveRequest eleve){
@@ -44,6 +49,16 @@ public class EleveController {
         verificationTokenService.verifyToken(token);
         return ResponseEntity.status(HttpStatus.ACCEPTED).body("Email Verified Successfully.");
     }
-    
-    
+
+    @PostMapping("/forget-password")
+    public ResponseEntity<String> forgetPassword(@RequestBody ForgetPasswordRequest request) {
+        resetPasswordService.forgetPassword(request.getEmail());
+        return ResponseEntity.status(HttpStatus.ACCEPTED).body("Verification sent to you.");
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<String> resetPassword(@RequestBody ResetPasswordRequest request) {
+        resetPasswordService.resetPassword(request);
+        return ResponseEntity.status(HttpStatus.ACCEPTED).body("New password have been update.");
+    }
 }

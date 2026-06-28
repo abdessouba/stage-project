@@ -19,20 +19,6 @@ public class SendEmailService {
     @Value("${spring.mail.username}")
     private String from;
 
-    
-    public void handleVerificationEmail(String email, String token){
-
-        CreateMessageEnvelope messageEnvelope = new CreateMessageEnvelope();
-        messageEnvelope.setEleveEmail(email);
-        messageEnvelope.setToken(token);
-        messageEnvelope.setActionName("Email Verification");
-        messageEnvelope.setPath("/api/eleve/auth/verify-email");
-        messageEnvelope.setMessage("Click The Button Below To Verify Your Account:");
-        messageEnvelope.setSubject("Account Verification.");
-        sendVerificationMessage(messageEnvelope);
-    }
-
-
     public void sendVerificationMessage(CreateMessageEnvelope message){
         try {
                 MimeMessage mimeMessage = mailSender.createMimeMessage();
