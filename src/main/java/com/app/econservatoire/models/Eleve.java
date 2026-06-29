@@ -77,8 +77,8 @@ public class Eleve {
     @Column(length = 100, unique = true)
     private String email;
 
-    @Column(length = 100)
-    private String identifiant_unique;
+    @Column(name = "identifiant_unique", length = 100, unique = true, updatable = false)
+    private String identifiantUnique;
 
     @Column(length = 200)
     private String nom_prenom_ar;
@@ -141,8 +141,4 @@ public class Eleve {
     // relationship with journalisations table
     @OneToMany(mappedBy = "eleve")
     private List<Journalisation> journalisations;
-
-    public boolean isAccountVerified(){
-        return this.enabled;
-    }
 }
