@@ -62,7 +62,7 @@ public class EleveService {
 
         Cookie cookie = new Cookie("jwt", token);
         cookie.setHttpOnly(true);
-        cookie.setSecure(true);
+        cookie.setSecure(false);
         cookie.setPath("/");      
         cookie.setMaxAge(60 * 60);
         response.addCookie(cookie);
