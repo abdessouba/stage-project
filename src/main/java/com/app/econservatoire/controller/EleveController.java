@@ -7,6 +7,7 @@ import com.app.econservatoire.dto.eleve.EleveSignInReponse;
 import com.app.econservatoire.dto.eleve.EleveSignInRequest;
 import com.app.econservatoire.dto.eleve.ForgetPasswordRequest;
 import com.app.econservatoire.dto.eleve.ResetPasswordRequest;
+
 import com.app.econservatoire.service.EleveService;
 import com.app.econservatoire.service.ResetPasswordService;
 import com.app.econservatoire.service.TokenVerifyService;
@@ -16,8 +17,8 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
+
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -65,4 +66,5 @@ public class EleveController {
         resetPasswordService.resetPassword(request);
         return ResponseEntity.status(HttpStatus.ACCEPTED).body("New password have been update.");
     }
+
 }
