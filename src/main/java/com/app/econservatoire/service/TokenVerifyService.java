@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import com.app.econservatoire.Repository.VerificationTokenRepository;
 import com.app.econservatoire.dto.CreateMessageEnvelope;
+import com.app.econservatoire.exceptions.eleve.TokenInvalidException;
 import com.app.econservatoire.models.Eleve;
 import com.app.econservatoire.models.VerificationToken;
 
@@ -37,14 +38,14 @@ public class TokenVerifyService {
 
     public void verifyToken(String token){
         VerificationToken verificationToken = verificationTokenRepository.findByToken(token)
-        .orElseThrow(() -> new RuntimeException("Invalid token"));
+        .orElseThrow(() -> new TokenInvalidException("The provided token does not exist."));
 
         if (verificationToken.isVerified()) {
-            throw new RuntimeException("Token already used");
+            throw new TokenInvalidException("This account already verified.");
         }
                 
         if (verificationToken.getExpirydate().isBefore(LocalDateTime.now())) {
-            throw new RuntimeException("Token expired. Ask for another one.");
+            throw new TokenInvalidException("Your verification link is no longer valid. Please request a new verification email.");
         }
 
         // update database validate and verified fields after account verification
