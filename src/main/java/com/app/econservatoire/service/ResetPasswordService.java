@@ -61,7 +61,7 @@ public class ResetPasswordService {
         }
 
         //encrypt the new password before saving
-        String hashedPassword = passwordEncoder.encode(resetPassword.getEleve().getPassword());
+        String hashedPassword = passwordEncoder.encode(request.getNewPassword());
         resetPassword.getEleve().setPassword(hashedPassword);
 
         resetPassword.setUsed(true);
