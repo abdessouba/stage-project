@@ -9,8 +9,13 @@ import org.springframework.stereotype.Service;
 import com.app.econservatoire.Repository.EleveRepository;
 import com.app.econservatoire.dto.CreateMessageEnvelope;
 import com.app.econservatoire.dto.eleve.ResetPasswordRequest;
+import com.app.econservatoire.exceptions.eleve.TokenInvalidException;
+import com.app.econservatoire.exceptions.eleve.EleveAuthenticationException;
 import com.app.econservatoire.models.Eleve;
 import com.app.econservatoire.models.ResetPassword;
+
+import jakarta.validation.Valid;
+
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import lombok.RequiredArgsConstructor;
@@ -28,7 +33,7 @@ public class ResetPasswordService {
 
 
     public void forgetPassword(String email){
-        Eleve eleve = eleveRepository.findByEmail(email).orElseThrow(()-> new RuntimeException("User with Email: " + email + "not found"));
+        Eleve eleve = eleveRepository.findByEmail(email).orElseThrow(()-> new EleveAuthenticationException("User With This Email does not exist."));
 
         String token = UUID.randomUUID().toString();
 
@@ -48,16 +53,16 @@ public class ResetPasswordService {
         sendEmailService.sendVerificationMessage(message);
     }
 
-    public void resetPassword(ResetPasswordRequest request){
+    public void resetPassword(@Valid ResetPasswordRequest request){
         ResetPassword resetPassword = resetPasswordRepository.findByToken(request.getToken())
-        .orElseThrow(()-> new RuntimeException("no such token found"));
+        .orElseThrow(()-> new TokenInvalidException("Invalid reset link. Please request a new password reset email."));
 
         if(resetPassword.isUsed()){
-            throw new RuntimeException("this token already have been used. Try Again");
+            throw new TokenInvalidException("This link have been used. Please request a new password reset email.");
         }
 
         if (resetPassword.getDate_expiration().isBefore(LocalDateTime.now())) {
-            throw new RuntimeException("Token expired. Ask for another one.");
+            throw new TokenInvalidException("This link expired. Please request a new password reset email.");
         }
 
         //encrypt the new password before saving

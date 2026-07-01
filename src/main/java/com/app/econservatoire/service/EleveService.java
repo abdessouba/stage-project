@@ -8,6 +8,8 @@ import com.app.econservatoire.Repository.PayRepository;
 import com.app.econservatoire.dto.eleve.EleveRequest;
 import com.app.econservatoire.dto.eleve.EleveSignInReponse;
 import com.app.econservatoire.dto.eleve.EleveSignInRequest;
+import com.app.econservatoire.exceptions.eleve.EleveAuthenticationException;
+import com.app.econservatoire.exceptions.pay.PayNotFoundException;
 import com.app.econservatoire.mapper.EleveMapper;
 import com.app.econservatoire.models.Eleve;
 import com.app.econservatoire.models.Pay;
@@ -33,11 +35,11 @@ public class EleveService {
     public void registerEleve(EleveRequest requestEleve) {
 
         if (eleveRepository.existsByEmail(requestEleve.getEmail())) {
-            throw new RuntimeException("User With This Email already exists");
+            throw new EleveAuthenticationException("User With This Email already exists");
         }
 
         Pay pay = payRepository.findById(requestEleve.getPayId())
-        .orElseThrow(()-> new RuntimeException("Pay not found."));
+        .orElseThrow(()-> new PayNotFoundException("Pay not found."));
             
         Eleve eleve = eleveMapper.toEntity(requestEleve);
         
@@ -52,10 +54,10 @@ public class EleveService {
     public EleveSignInReponse signInUser(EleveSignInRequest request, HttpServletResponse response){
         Eleve eleve = eleveRepository
             .findByEmailOrIdentifiantUnique(request.getIdentifier(), request.getIdentifier())
-            .orElseThrow(() -> new RuntimeException("Invalid credentials"));
+            .orElseThrow(() -> new EleveAuthenticationException("Identifier incorrect."));
 
         if (!passwordEncoder.matches(request.getPassword(), eleve.getPassword())) {
-            throw new RuntimeException("Invalid credentials");
+            throw new EleveAuthenticationException("The password incorrect.");
         }
 
         String token = jwtService.generateToken(eleve.getId(), eleve.getEmail());

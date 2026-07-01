@@ -3,11 +3,11 @@ package com.app.econservatoire.controller;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.app.econservatoire.dto.eleve.EleveRequest;
-import com.app.econservatoire.dto.eleve.EleveSignInReponse;
 import com.app.econservatoire.dto.eleve.EleveSignInRequest;
 import com.app.econservatoire.dto.eleve.ForgetPasswordRequest;
 import com.app.econservatoire.dto.eleve.ResetPasswordRequest;
-
+import com.app.econservatoire.payload.ApiResponse;
+import com.app.econservatoire.payload.ApiResponseFactory;
 import com.app.econservatoire.service.EleveService;
 import com.app.econservatoire.service.ResetPasswordService;
 import com.app.econservatoire.service.TokenVerifyService;
@@ -37,34 +37,34 @@ public class EleveController {
     public final ResetPasswordService resetPasswordService;
 
     @PostMapping("/signup")
-    public ResponseEntity<String> SignUp(@Valid @RequestBody EleveRequest eleve){
+    public ResponseEntity<ApiResponse<Void>> SignUp(@Valid @RequestBody EleveRequest eleve){
         eleveService.registerEleve(eleve);     
-        return ResponseEntity.status(HttpStatus.CREATED).body("Verification email sent successfully.");
+        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponseFactory.success(null, HttpStatus.CREATED.value(), "Account created."));
     }
 
     @PostMapping("/signin")
-    public ResponseEntity<EleveSignInReponse> login(@RequestBody EleveSignInRequest request,
+    public ResponseEntity<ApiResponse<Void>> login(@Valid @RequestBody EleveSignInRequest request,
                                 HttpServletResponse response) {
-        return ResponseEntity.ok(eleveService.signInUser(request, response));
+        eleveService.signInUser(request, response);
+        return ResponseEntity.ok(ApiResponseFactory.success(null, HttpStatus.OK.value(), "You are signed in."));
     }
 
-
     @GetMapping("/verify-email")
-    public ResponseEntity<String> getMethodName(@RequestParam String token) {
+    public ResponseEntity<ApiResponse<Void>> getMethodName(@RequestParam String token) {
         verificationTokenService.verifyToken(token);
-        return ResponseEntity.status(HttpStatus.ACCEPTED).body("Email Verified Successfully.");
+        return ResponseEntity.ok(ApiResponseFactory.success(null, HttpStatus.OK.value(), "Email verified successfully."));
     }
 
     @PostMapping("/forget-password")
-    public ResponseEntity<String> forgetPassword(@RequestBody ForgetPasswordRequest request) {
+    public ResponseEntity<ApiResponse<Void>> forgetPassword(@Valid @RequestBody ForgetPasswordRequest request) {
         resetPasswordService.forgetPassword(request.getEmail());
-        return ResponseEntity.status(HttpStatus.ACCEPTED).body("Verification sent to you.");
+        return ResponseEntity.ok(ApiResponseFactory.success(null, HttpStatus.OK.value(), "Reset password email sent to you."));
     }
 
     @PostMapping("/reset-password")
-    public ResponseEntity<String> resetPassword(@RequestBody ResetPasswordRequest request) {
+    public ResponseEntity<ApiResponse<Void>> resetPassword(@Valid @RequestBody ResetPasswordRequest request) {
         resetPasswordService.resetPassword(request);
-        return ResponseEntity.status(HttpStatus.ACCEPTED).body("New password have been update.");
+        return ResponseEntity.ok(ApiResponseFactory.success(null, HttpStatus.OK.value(), "Your password have been updated."));
     }
 
 }
