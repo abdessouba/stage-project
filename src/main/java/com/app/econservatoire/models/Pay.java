@@ -1,13 +1,10 @@
 package com.app.econservatoire.models;
 
-import java.util.List;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -27,7 +24,4 @@ public class Pay {
 
     @Column(length = 100, nullable = false)
     private String nom_pay;
-
-    // @OneToMany(mappedBy = "pay")
-    // private List<Eleve> eleves;
 }

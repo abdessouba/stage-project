@@ -7,8 +7,13 @@ import java.util.List;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import com.app.econservatoire.models.enums.Sexe;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -28,45 +33,57 @@ import lombok.Setter;
 @Getter
 @Setter
 @Table(name = "eleves", indexes = {
-    @Index(name = "FK_eleve_pays_id_pays", columnList = "pay"),
+    @Index(name = "FK_eleve_pays_id_pays", columnList = "pay_id"),
 })
 public class Eleve {
+
+    // ==========================================================
+    // Primary Key
+    // ==========================================================
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(length = 100)
+    // ==========================================================
+    // Personal Information
+    // ==========================================================
+
+    @Column(nullable = false, length = 100)
     private String nom;
 
-    @Column(length = 100)
+    @Column(nullable = false, length = 100)
     private String prenom;
 
     @Column(length = 100)
     private String nom_ar;
 
-    @Column(length = 10)
-    private String sexe;
+    @Column(length = 100)
+    private String prenom_ar;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 10)
+    private Sexe sexe;
+
+    @Column(nullable = false)
     private LocalDate date_naissance;
 
-    @Column(length = 50)
+    @Column(length = 100)
     private String lieu_naissance;
 
-    @ManyToOne
-    @JoinColumn(name = "pay_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "pay_id", nullable = false)
     private Pay pay;
-
-    @Column(length = 200)
-    private String adresse;
 
     @Column(length = 20)
     private String cin;
 
-    @Column(length = 100)
-    private String nom_pere;
+    // ==========================================================
+    // Contact Information
+    // ==========================================================
 
-    @Column(length = 100)
-    private String profession_pere;
+    @Column(length = 255)
+    private String adresse;
 
     @Column(length = 15)
     private String mobile;
@@ -74,41 +91,18 @@ public class Eleve {
     @Column(length = 15)
     private String fixe;
 
-    @Column(length = 100, unique = true)
+    @Column(nullable = false, unique = true, length = 100)
     private String email;
 
-    @Column(name = "identifiant_unique", length = 100, unique = true, updatable = false)
-    private String identifiantUnique;
-
-    @Column(length = 200)
-    private String nom_prenom_ar;
-    
-    @Column(length = 255)
-    private String password;
-
-    private Boolean enabled;
+    // ==========================================================
+    // Parent Information
+    // ==========================================================
 
     @Column(length = 100)
-    private String photo;
+    private String nom_pere;
 
-    private Boolean valide;
-
-    @Column(nullable = false, length = 100)
-    private String profile;
-
-    private Boolean nouveau;
-
-    @Column(nullable = false)
-    private boolean lu_condition;
-
-    @Column(nullable = false)
-    private boolean militaire;
-
-    @Column(nullable = false)
-    private boolean reclassement;
-
-    @Column(length = 50)
-    private String tarif;
+    @Column(length = 100)
+    private String profession_pere;
 
     @Column(length = 50)
     private String parent_culture;
@@ -119,8 +113,47 @@ public class Eleve {
     @Column(length = 10)
     private String lien_parente;
 
+    // ==========================================================
+    // Account Information
+    // ==========================================================
+
+    @Column(name = "identifiant_unique", unique = true, updatable = false, length = 100)
+    private String identifiantUnique;
+
+    @Column(nullable = false, length = 255)
+    private String password;
+
+    private boolean enabled = false;
+
+    private boolean valide = false;
+
+    @Column(length = 100)
+    private String profile;
+
+    @Column(length = 100)
+    private String photo;
+
+    private boolean nouveau;
+
+    // ==========================================================
+    // Administrative Information
+    // ==========================================================
+
     @Column(nullable = false)
+    private boolean lu_condition;
+
+    private boolean militaire;
+
+    private boolean reclassement;
+
+    @Column(length = 50)
+    private String tarif;
+
     private boolean frais_imprime;
+
+    // ==========================================================
+    // Audit Information
+    // ==========================================================
 
     @CreationTimestamp
     @Column(nullable = false, updatable = false)
@@ -130,15 +163,9 @@ public class Eleve {
     @Column(nullable = false)
     private LocalDateTime updated_at;
 
-    // relationship with verificationToken table
-    @OneToMany(mappedBy = "eleve")
-    private List<VerificationToken> tokens;
-
-    // relationship with resetPassword table
-    @OneToMany(mappedBy = "eleve")
-    private List<ResetPassword> resetPasswords;
-
-    // relationship with journalisations table
+    // ==========================================================
+    // Relationships
+    // ==========================================================
     @OneToMany(mappedBy = "eleve")
     private List<Journalisation> journalisations;
 }
