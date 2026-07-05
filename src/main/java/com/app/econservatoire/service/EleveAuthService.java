@@ -48,7 +48,7 @@ public class EleveAuthService {
 
         Eleve savedEleve = eleveRepository.save(eleve);
 
-        tokenVerifyService.verifyEmail(savedEleve);
+        tokenVerifyService.sendVerificationEmail(savedEleve);
     }
     
     public EleveSignInReponse signInUser(EleveSignInRequest request, HttpServletResponse response){

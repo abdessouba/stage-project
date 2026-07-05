@@ -32,20 +32,20 @@ import org.springframework.web.bind.annotation.RequestParam;
 @RequestMapping("/api/eleve/auth")
 public class EleveController {
 
-    public final EleveAuthService eleveService;
+    public final EleveAuthService eleveAuthService;
     public final TokenVerifyService verificationTokenService;
     public final ResetPasswordService resetPasswordService;
 
     @PostMapping("/signup")
     public ResponseEntity<ApiResponse<Void>> SignUp(@Valid @RequestBody EleveRegistrationRequest eleve){
-        eleveService.registerEleve(eleve);     
+        eleveAuthService.registerEleve(eleve);     
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponseFactory.success(null, HttpStatus.CREATED.value(), "Account created."));
     }
 
     @PostMapping("/signin")
     public ResponseEntity<ApiResponse<Void>> login(@Valid @RequestBody EleveSignInRequest request,
                                 HttpServletResponse response) {
-        eleveService.signInUser(request, response);
+        eleveAuthService.signInUser(request, response);
         return ResponseEntity.ok(ApiResponseFactory.success(null, HttpStatus.OK.value(), "You are signed in."));
     }
 
