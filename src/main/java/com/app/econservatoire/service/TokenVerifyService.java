@@ -6,6 +6,7 @@ import java.util.UUID;
 import org.springframework.stereotype.Service;
 
 import com.app.econservatoire.Repository.VerificationTokenRepository;
+import com.app.econservatoire.configuration.AppProperties;
 import com.app.econservatoire.dto.CreateMessageEnvelope;
 import com.app.econservatoire.exceptions.eleve.TokenInvalidException;
 import com.app.econservatoire.models.Eleve;
@@ -19,6 +20,7 @@ public class TokenVerifyService {
 
     private final VerificationTokenRepository verificationTokenRepository;
     private final SendEmailService sendEmailService;
+    private final AppProperties appProperties;
 
     private final Long verificationExpirationHours = 24L;
 
@@ -38,7 +40,7 @@ public class TokenVerifyService {
 
     public void verifyToken(String token){
         VerificationToken verificationToken = verificationTokenRepository.findByToken(token)
-        .orElseThrow(() -> new TokenInvalidException("The provided token does not exist."));
+        .orElseThrow(() -> new TokenInvalidException("Invalid Token."));
 
         if (verificationToken.isVerified()) {
             throw new TokenInvalidException("This account already verified.");
@@ -55,17 +57,17 @@ public class TokenVerifyService {
         verificationTokenRepository.save(verificationToken);
     }
 
-    public void verifyEmail(Eleve eleve){
+    public void sendVerificationEmail(Eleve eleve){
         VerificationToken token = createVerificationToken(eleve);
 
         CreateMessageEnvelope messageEnvelope = new CreateMessageEnvelope();
         messageEnvelope.setEleveEmail(eleve.getEmail());
         messageEnvelope.setToken(token.getToken());
         messageEnvelope.setActionName("Email Verification");
-        messageEnvelope.setPath("/api/eleve/auth/verify-email");
         messageEnvelope.setMessage("Click The Button Below To Verify Your Account:");
         messageEnvelope.setSubject("Account Verification.");
-
+        messageEnvelope.setUrl(appProperties.getUrl());
+        messageEnvelope.setPath(appProperties.getVerifyPath());
         sendEmailService.sendVerificationMessage(messageEnvelope);
     }
 }

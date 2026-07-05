@@ -1,10 +1,13 @@
 package com.app.econservatoire.service;
 
 import com.app.econservatoire.Repository.ResetPasswordRepository;
+import com.app.econservatoire.configuration.AppProperties;
+
 import java.time.LocalDateTime;
 import java.util.UUID;
 
 import org.springframework.stereotype.Service;
+import org.springframework.validation.annotation.Validated;
 
 import com.app.econservatoire.Repository.EleveRepository;
 import com.app.econservatoire.dto.CreateMessageEnvelope;
@@ -22,12 +25,14 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
+@Validated
 public class ResetPasswordService {
 
     private final ResetPasswordRepository resetPasswordRepository;
     private final EleveRepository eleveRepository;
     private final SendEmailService sendEmailService;
     public final PasswordEncoder passwordEncoder;
+    public final AppProperties appProperties;
 
     private final Long verificationExpirationHours = 24L;
 
@@ -48,8 +53,9 @@ public class ResetPasswordService {
         message.setActionName("Password Reset");
         message.setEleveEmail(email);
         message.setMessage("Click the button to recover your password");
-        message.setPath("/api/eleve/auth/reset-password");
         message.setSubject("Password Reset");
+        message.setPath(appProperties.getResetPath());
+        message.setUrl(appProperties.getUrl());
         sendEmailService.sendVerificationMessage(message);
     }
 

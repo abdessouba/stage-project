@@ -1,6 +1,6 @@
 package com.app.econservatoire.dto;
 
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -14,8 +14,16 @@ public class CreateMessageEnvelope {
     private String path;
     private String message;
     private String actionName;
+    private String url;
 
     public String getEmailMessageEnvelope(){
+
+        String completeUrl = UriComponentsBuilder
+                .fromUriString(url)
+                .path(path)
+                .queryParam("token", token)
+                .toUriString();
+
         return  """
                 <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px;">
                     <h2 style="color: #333;">%s</h2>
@@ -39,15 +47,7 @@ public class CreateMessageEnvelope {
                     <p style="font-size: 12px; color: #aaa;">This is an automated message.</p>
                 </div>
                 
-            """.formatted(subject, message, getCurrentUrl(), actionName, getCurrentUrl());
+            """.formatted(subject, message, completeUrl, actionName, completeUrl);
     }
 
-    public String getCurrentUrl(){
-        // This will Dynamically get my application base URL http://localhost:8080. 
-        String actionUrl = ServletUriComponentsBuilder.fromCurrentContextPath()
-            .path(path)
-            .queryParam("token", token)
-            .toUriString();
-        return actionUrl;
-    }
 }

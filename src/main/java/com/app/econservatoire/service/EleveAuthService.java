@@ -5,7 +5,7 @@ import org.springframework.stereotype.Service;
 
 import com.app.econservatoire.Repository.EleveRepository;
 import com.app.econservatoire.Repository.PayRepository;
-import com.app.econservatoire.dto.eleve.EleveRequest;
+import com.app.econservatoire.dto.eleve.EleveRegistrationRequest;
 import com.app.econservatoire.dto.eleve.EleveSignInReponse;
 import com.app.econservatoire.dto.eleve.EleveSignInRequest;
 import com.app.econservatoire.exceptions.eleve.EleveAuthenticationException;
@@ -22,7 +22,7 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 @Service
-public class EleveService {
+public class EleveAuthService {
 
     private final EleveMapper eleveMapper;
     private final EleveRepository eleveRepository;
@@ -32,7 +32,7 @@ public class EleveService {
     private final JwtService jwtService;
 
 
-    public void registerEleve(EleveRequest requestEleve) {
+    public void registerEleve(EleveRegistrationRequest requestEleve) {
 
         if (eleveRepository.existsByEmail(requestEleve.getEmail())) {
             throw new EleveAuthenticationException("User With This Email already exists");
@@ -48,7 +48,7 @@ public class EleveService {
 
         Eleve savedEleve = eleveRepository.save(eleve);
 
-        tokenVerifyService.verifyEmail(savedEleve);
+        tokenVerifyService.sendVerificationEmail(savedEleve);
     }
     
     public EleveSignInReponse signInUser(EleveSignInRequest request, HttpServletResponse response){
