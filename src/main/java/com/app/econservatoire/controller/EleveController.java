@@ -2,13 +2,13 @@ package com.app.econservatoire.controller;
 
 import org.springframework.web.bind.annotation.RestController;
 
-import com.app.econservatoire.dto.eleve.EleveRequest;
+import com.app.econservatoire.dto.eleve.EleveRegistrationRequest;
 import com.app.econservatoire.dto.eleve.EleveSignInRequest;
 import com.app.econservatoire.dto.eleve.ForgetPasswordRequest;
 import com.app.econservatoire.dto.eleve.ResetPasswordRequest;
 import com.app.econservatoire.payload.ApiResponse;
 import com.app.econservatoire.payload.ApiResponseFactory;
-import com.app.econservatoire.service.EleveService;
+import com.app.econservatoire.service.EleveAuthService;
 import com.app.econservatoire.service.ResetPasswordService;
 import com.app.econservatoire.service.TokenVerifyService;
 
@@ -32,12 +32,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 @RequestMapping("/api/eleve/auth")
 public class EleveController {
 
-    public final EleveService eleveService;
+    public final EleveAuthService eleveService;
     public final TokenVerifyService verificationTokenService;
     public final ResetPasswordService resetPasswordService;
 
     @PostMapping("/signup")
-    public ResponseEntity<ApiResponse<Void>> SignUp(@Valid @RequestBody EleveRequest eleve){
+    public ResponseEntity<ApiResponse<Void>> SignUp(@Valid @RequestBody EleveRegistrationRequest eleve){
         eleveService.registerEleve(eleve);     
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponseFactory.success(null, HttpStatus.CREATED.value(), "Account created."));
     }
