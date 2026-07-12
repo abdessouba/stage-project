@@ -6,6 +6,7 @@ import com.app.econservatoire.dto.eleve.EleveRegistrationRequest;
 import com.app.econservatoire.dto.eleve.EleveSignInRequest;
 import com.app.econservatoire.dto.eleve.ForgetPasswordRequest;
 import com.app.econservatoire.dto.eleve.ResetPasswordRequest;
+import com.app.econservatoire.exceptions.eleve.AccountNotVerifiedException;
 import com.app.econservatoire.payload.ApiResponse;
 import com.app.econservatoire.payload.ApiResponseFactory;
 import com.app.econservatoire.service.EleveAuthService;
@@ -45,7 +46,11 @@ public class EleveController {
     @PostMapping("/signin")
     public ResponseEntity<ApiResponse<Void>> login(@Valid @RequestBody EleveSignInRequest request,
                                 HttpServletResponse response) {
-        eleveAuthService.signInUser(request, response);
+        try {
+            eleveAuthService.signInEleve(request, response);
+        } catch (AccountNotVerifiedException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ApiResponseFactory.error(e.getMessage(), HttpStatus.UNAUTHORIZED.value()));
+        }
         return ResponseEntity.ok(ApiResponseFactory.success(null, HttpStatus.OK.value(), "You are signed in."));
     }
 
@@ -57,7 +62,7 @@ public class EleveController {
 
     @PostMapping("/forget-password")
     public ResponseEntity<ApiResponse<Void>> forgetPassword(@Valid @RequestBody ForgetPasswordRequest request) {
-        resetPasswordService.forgetPassword(request.getEmail());
+        resetPasswordService.forgetPassword(request.getIdentifier());
         return ResponseEntity.ok(ApiResponseFactory.success(null, HttpStatus.OK.value(), "Reset password email sent to you."));
     }
 

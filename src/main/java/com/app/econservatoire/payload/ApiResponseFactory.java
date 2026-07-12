@@ -17,6 +17,7 @@ public class ApiResponseFactory<T> {
     public static <T> ApiResponse<T> error(String message, int status) {
         return ApiResponse.<T>builder()
                 .status(status)
+                .message(message)
                 .success(false)
                 .timestamp(LocalDateTime.now())
                 .build();

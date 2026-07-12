@@ -37,8 +37,8 @@ public class ResetPasswordService {
     private final Long verificationExpirationHours = 24L;
 
 
-    public void forgetPassword(String email){
-        Eleve eleve = eleveRepository.findByEmail(email).orElseThrow(()-> new EleveAuthenticationException("User With This Email does not exist."));
+    public void forgetPassword(String identifier){
+        Eleve eleve = eleveRepository.findByEmailOrIdentifiantUnique(identifier, identifier).orElseThrow(()-> new EleveAuthenticationException("L'utilisateur avec cet identifiant n'existe pas."));
 
         String token = UUID.randomUUID().toString();
 
@@ -51,7 +51,7 @@ public class ResetPasswordService {
         CreateMessageEnvelope message = new CreateMessageEnvelope();
         message.setToken(token);
         message.setActionName("Password Reset");
-        message.setEleveEmail(email);
+        message.setEleveEmail(eleve.getEmail());
         message.setMessage("Click the button to recover your password");
         message.setSubject("Password Reset");
         message.setPath(appProperties.getResetPath());
@@ -78,5 +78,4 @@ public class ResetPasswordService {
         resetPassword.setUsed(true);
         resetPasswordRepository.save(resetPassword);
     }
-
 }

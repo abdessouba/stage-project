@@ -8,6 +8,7 @@ import com.app.econservatoire.Repository.PayRepository;
 import com.app.econservatoire.dto.eleve.EleveRegistrationRequest;
 import com.app.econservatoire.dto.eleve.EleveSignInReponse;
 import com.app.econservatoire.dto.eleve.EleveSignInRequest;
+import com.app.econservatoire.exceptions.eleve.AccountNotVerifiedException;
 import com.app.econservatoire.exceptions.eleve.EleveAuthenticationException;
 import com.app.econservatoire.exceptions.pay.PayNotFoundException;
 import com.app.econservatoire.mapper.EleveMapper;
@@ -36,11 +37,11 @@ public class EleveAuthService {
     public void registerEleve(EleveRegistrationRequest requestEleve) {
 
         if (eleveRepository.existsByEmail(requestEleve.getEmail())) {
-            throw new EleveAuthenticationException("User With This Email already exists");
+            throw new EleveAuthenticationException("Un compte associé à cette adresse e-mail existe déjà.");
         }
 
         Pay pay = payRepository.findById(requestEleve.getPayId())
-        .orElseThrow(()-> new PayNotFoundException("Pay not found."));
+        .orElseThrow(()-> new PayNotFoundException("Pay introuvable."));
             
         Eleve eleve = eleveMapper.toEntity(requestEleve);
         
@@ -53,13 +54,17 @@ public class EleveAuthService {
         tokenVerifyService.sendVerificationEmail(savedEleve);
     }
     
-    public EleveSignInReponse signInUser(EleveSignInRequest request, HttpServletResponse response){
+    public EleveSignInReponse signInEleve(EleveSignInRequest request, HttpServletResponse response){
         Eleve eleve = eleveRepository
             .findByEmailOrIdentifiantUnique(request.getIdentifier(), request.getIdentifier())
-            .orElseThrow(() -> new EleveAuthenticationException("Identifier incorrect."));
+            .orElseThrow(() -> new EleveAuthenticationException("Identifiant incorrect."));
 
         if (!passwordEncoder.matches(request.getPassword(), eleve.getPassword())) {
-            throw new EleveAuthenticationException("The password incorrect.");
+            throw new EleveAuthenticationException("Le mot de passe est incorrect.");
+        }
+
+        if(!eleve.isValide()){
+            throw new AccountNotVerifiedException("Votre compte n'est pas encore vérifié. Veuillez vérifier votre boîte de réception.");
         }
 
         String token = jwtService.generateToken(eleve.getId(), eleve.getEmail());
