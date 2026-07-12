@@ -2,9 +2,11 @@ package com.app.econservatoire.service;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.app.econservatoire.Repository.EleveRepository;
 import com.app.econservatoire.Repository.PayRepository;
+import com.app.econservatoire.dto.eleve.AuthEleveResponse;
 import com.app.econservatoire.dto.eleve.EleveRegistrationRequest;
 import com.app.econservatoire.dto.eleve.EleveSignInReponse;
 import com.app.econservatoire.dto.eleve.EleveSignInRequest;
@@ -19,6 +21,7 @@ import com.app.econservatoire.security.jwt.JwtService;
 
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 
@@ -83,5 +86,50 @@ public class EleveAuthService {
         eleveReponse.setId(jsonClaims.get("id", Integer.class));
 
         return eleveReponse;
+    }
+
+    @Transactional(readOnly = true)
+    public AuthEleveResponse getAuthenticatedEleve(HttpServletRequest request) {
+        String token = extractJwtToken(request);
+
+        if (token == null || token.isBlank()) {
+            throw new EleveAuthenticationException("Token manquant.");
+        }
+
+        try {
+            Claims jsonClaims = jwtService.extractJsonData(token);
+            String email = jsonClaims.getSubject();
+
+            Eleve eleve = eleveRepository
+                .findByEmail(email)
+                .orElseThrow(() -> new EleveAuthenticationException("Utilisateur introuvable."));
+
+            return eleveMapper.toAuthResponse(eleve);
+        } catch (RuntimeException exception) {
+            throw new EleveAuthenticationException("Token invalide.");
+        }
+    }
+
+    public void logout(HttpServletResponse response) {
+        Cookie cookie = new Cookie("jwt", "");
+        cookie.setHttpOnly(true);
+        cookie.setSecure(false);
+        cookie.setPath("/");
+        cookie.setMaxAge(0);
+        response.addCookie(cookie);
+    }
+
+    private String extractJwtToken(HttpServletRequest request) {
+        if (request.getCookies() == null) {
+            return null;
+        }
+
+        for (Cookie cookie : request.getCookies()) {
+            if ("jwt".equals(cookie.getName())) {
+                return cookie.getValue();
+            }
+        }
+
+        return null;
     }
 }

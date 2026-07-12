@@ -1,12 +1,15 @@
 package com.app.econservatoire.controller;
 
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.app.econservatoire.dto.eleve.AuthEleveResponse;
 import com.app.econservatoire.dto.eleve.EleveRegistrationRequest;
 import com.app.econservatoire.dto.eleve.EleveSignInRequest;
 import com.app.econservatoire.dto.eleve.ForgetPasswordRequest;
 import com.app.econservatoire.dto.eleve.ResetPasswordRequest;
 import com.app.econservatoire.exceptions.eleve.AccountNotVerifiedException;
+import com.app.econservatoire.exceptions.eleve.EleveAuthenticationException;
 import com.app.econservatoire.payload.ApiResponse;
 import com.app.econservatoire.payload.ApiResponseFactory;
 import com.app.econservatoire.service.EleveAuthService;
@@ -19,7 +22,6 @@ import lombok.RequiredArgsConstructor;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -70,6 +72,26 @@ public class EleveController {
     public ResponseEntity<ApiResponse<Void>> resetPassword(@Valid @RequestBody ResetPasswordRequest request) {
         resetPasswordService.resetPassword(request);
         return ResponseEntity.ok(ApiResponseFactory.success(null, HttpStatus.OK.value(), "Your password have been updated."));
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<ApiResponse<AuthEleveResponse>> me(HttpServletRequest request) {
+        try {
+            AuthEleveResponse authEleve = eleveAuthService.getAuthenticatedEleve(request);
+
+            return ResponseEntity.ok(
+                ApiResponseFactory.success(authEleve, HttpStatus.OK.value(), "Authenticated user retrieved successfully.")
+            );
+        } catch (EleveAuthenticationException exception) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(ApiResponseFactory.error(exception.getMessage(), HttpStatus.UNAUTHORIZED.value()));
+        }
+    }
+
+    @GetMapping("/logout")
+    public ResponseEntity<ApiResponse<Void>> logout(HttpServletResponse response) {
+        eleveAuthService.logout(response);
+        return ResponseEntity.ok(ApiResponseFactory.success(null, HttpStatus.OK.value(), "You are signed out."));
     }
 
 }

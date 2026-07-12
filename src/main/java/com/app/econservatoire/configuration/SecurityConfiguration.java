@@ -41,11 +41,12 @@ public class SecurityConfiguration {
                 handler.authenticationEntryPoint(unauthorizedHandler)
             )
 
-            .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/eleve/auth/**").permitAll()
-                .requestMatchers("/api/pays").permitAll()
-                .anyRequest().authenticated()
-            )
+                .authorizeHttpRequests(auth -> auth
+                    .requestMatchers("/api/eleve/auth/me").authenticated()
+                    .requestMatchers("/api/eleve/auth/**").permitAll()
+                    .requestMatchers("/api/pays").permitAll()
+                    .anyRequest().authenticated()
+                )
 
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
