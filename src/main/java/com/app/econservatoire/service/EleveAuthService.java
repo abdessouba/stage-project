@@ -13,6 +13,7 @@ import com.app.econservatoire.exceptions.pay.PayNotFoundException;
 import com.app.econservatoire.mapper.EleveMapper;
 import com.app.econservatoire.models.Eleve;
 import com.app.econservatoire.models.Pay;
+import com.app.econservatoire.security.UserIdGenerator;
 import com.app.econservatoire.security.jwt.JwtService;
 
 import io.jsonwebtoken.Claims;
@@ -45,6 +46,7 @@ public class EleveAuthService {
         
         eleve.setPassword(passwordEncoder.encode(requestEleve.getPassword()));
         eleve.setPay(pay);
+        eleve.setIdentifiantUnique(UserIdGenerator.generate());
 
         Eleve savedEleve = eleveRepository.save(eleve);
 
